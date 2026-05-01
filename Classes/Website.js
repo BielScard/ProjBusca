@@ -72,5 +72,18 @@ class Website {
         
     }
 
+    cadastrarSite(dados) {
+    const site = new Website();
+    try {
+        site.titulo = dados.titulo;
+    } catch (e) {
+        
+        const logMsg = `${new Date().toISOString()} - ${e.message}\n`;
+        fs.appendFileSync('log_excecoes.txt', logMsg);
+        
+        console.log("Erro registrado no arquivo log_excecoes.txt");
+    }
+}
+
     
 }

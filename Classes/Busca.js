@@ -80,4 +80,17 @@ class Busca {
         return similaridade.toFixed(2) + "%";
 }
 
+ColocarBusca(dados) {
+    const procura = new Busca();
+    try {
+        procura.texto = dados.texto;
+    } catch (e) {
+        
+        const logMsg = `${new Date().toISOString()} - ${e.message}\n`;
+        fs.appendFileSync('log_excecoes.txt', logMsg);
+        
+        console.log("Erro registrado no arquivo log_excecoes.txt");
+    }
+}
+
 }

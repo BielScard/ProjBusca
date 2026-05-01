@@ -27,5 +27,18 @@ class Chave {
         }
     }
 
+    cadastrarChave(dados) {
+    const chave = new Chave();
+    try {
+        chave.termo = dados.termo;
+    } catch (e) {
+        
+        const logMsg = `${new Date().toISOString()} - ${e.message}\n`;
+        fs.appendFileSync('log_excecoes.txt', logMsg);
+        
+        console.log("Erro registrado no arquivo log_excecoes.txt");
+    }
+}
+
 
 }
