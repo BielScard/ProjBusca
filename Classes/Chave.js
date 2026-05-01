@@ -6,12 +6,25 @@ class Chave {
 
     }
 
-    gettermo(){
-        return this.termo;
+    get termo(){
+        return this.#termo;
     }
 
-    getpeso(){
-        return this.peso;
+    get peso(){
+        return this.#peso;
+    }
+
+    set termo(entrada){
+        if(entrada.includes(' ')){
+            throw new Error("palavras chave são contínuas")
+        }
+        this.#termo = entrada;
+    }
+
+    set peso(entrada){
+        if(!entrada>0){
+            throw new Error('peso da chave não pode ser zero')
+        }
     }
 
 
