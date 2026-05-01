@@ -76,6 +76,14 @@ async function connectDB() {
     }
 }
 
+function salvarLog(erro) {
+    const dataHora = new Date().toLocaleString('pt-BR');
+    const linhaLog = `[${dataHora}] ERRO: ${erro.message}\n`;
+    
+    // Grava no arquivo 'error.log'. Se não existir, ele cria automaticamente.
+    fs.appendFileSync('error.log', linhaLog);
+}
+
 connectDB();
 //conexão ainda está dando erro
 app.listen(3000)
