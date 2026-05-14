@@ -1,9 +1,12 @@
+const { logError } = require('../logger');
+
 class Chave {
-    constructor(termo,peso){
+    #termo;
+    #peso;
+
+    constructor(termo, peso = 1){
         this.termo = termo;
         this.peso = peso;
-        
-
     }
 
     get termo(){
@@ -15,30 +18,29 @@ class Chave {
     }
 
     set termo(entrada){
-        if(entrada.includes(' ')){
-            throw new Error("palavras chave são contínuas")
+        if (typeof entrada !== 'string' || entrada.trim() === '' || entrada.includes(' ')) {
+            const error = new Error("palavra-chave deve ser uma única palavra");
+            logError(error, 'Chave.set termo');
+            throw error;
         }
         this.#termo = entrada;
     }
 
-    set peso(entrada){
-        if(!entrada>0){
-            throw new Error('peso da chave não pode ser zero')
+    set peso(valor){
+        if (typeof valor !== 'number' || valor <= 0) {
+            const error = new Error('peso da chave deve ser um número maior que zero');
+            logError(error, 'Chave.set peso');
+            throw error;
         }
+        this.#peso = valor;
     }
 
-    cadastrarChave(dados) {
-    const chave = new Chave();
-    try {
-        chave.termo = dados.termo;
-    } catch (e) {
-        
-        const logMsg = `${new Date().toISOString()} - ${e.message}\n`;
-        fs.appendFileSync('log_excecoes.txt', logMsg);
-        
-        console.log("Erro registrado no arquivo log_excecoes.txt");
+    toObject() {
+        return {
+            termo: this.termo,
+            peso: this.peso,
+        };
     }
 }
 
-
-}
+module.exports = Chave;

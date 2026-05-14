@@ -1,16 +1,23 @@
+const Chave = require('./Chave');
+const { logError } = require('../logger');
+
 class Website {
+    #titulo;
+    #url;
+    #descritivo;
+    #imagem;
     #chaves = [];
 
-    constructor(titulo,url,descritivo,imagem){
+    constructor(titulo, url, descritivo, imagem, chaves = []){
         this.titulo = titulo;
         this.url = url;
         this.descritivo = descritivo;
         this.imagem = imagem;
-
+        this.chaves = chaves;
     }
 
-    get título(){
-        return this.#título;
+    get titulo(){
+        return this.#titulo;
     }
 
     get url(){
@@ -25,65 +32,77 @@ class Website {
         return this.#imagem;
     }
 
-    get chaves()
-    {
+    get chaves() {
         return this.#chaves;
     }
 
-    set título(entrada){
-        if (!entrada || entrada.lenght < 3){
-            throw new Error("Título muito curto ou ausente.");
+    set titulo(entrada){
+        if (!entrada || entrada.length < 3){
+            const error = new Error("Título muito curto ou ausente.");
+            logError(error, 'Website.set titulo');
+            throw error;
         }
         this.#titulo = entrada;
     }
 
     set url(entrada){
         if(!entrada || !entrada.startsWith('http')){
-            throw new Error("Url invalida ou ausente");
+            const error = new Error("Url inválida ou ausente");
+            logError(error, 'Website.set url');
+            throw error;
         }
         this.#url = entrada;
     }
 
-    //descritivo não pode ser ausente ou ser maior que 150 e menor que 3 caracteres
     set descritivo(entrada){
-        if (!entrada || entrada.lenght < 3 || entrada.lenght > 150){
-            throw new Error("Descrição fora dos conformes");
+        if (!entrada || entrada.length < 3 || entrada.length > 150){
+            const error = new Error("Descrição fora dos conformes");
+            logError(error, 'Website.set descritivo');
+            throw error;
         }
         this.#descritivo = entrada;
     }
 
     set imagem(entrada){
-        if(!entrada.endsWith('.jpg')||!entrada.endsWith('png')){
-            throw new Error("imagem não é do formato correto");
+        if (typeof entrada !== 'string' || (!entrada.endsWith('.jpg') && !entrada.endsWith('.png'))){
+            const error = new Error("imagem não é do formato correto");
+            logError(error, 'Website.set imagem');
+            throw error;
         }
         this.#imagem = entrada;
     }
 
     set chaves(entradalista){
-        if(!(entradalista instanceof Chave)){
-            throw new Error("palavras chave são contínuas")
+        if (!Array.isArray(entradalista)) {
+            const error = new Error("chaves deve ser um array de Chave");
+            logError(error, 'Website.set chaves');
+            throw error;
         }
+        this.#chaves = [];
+        entradalista.forEach(item => this.addChave(item));
+    }
 
-        const jaExiste = this.#chaves.some(c => c.palavra === objetoChave.palavra);
-
+    addChave(chave){
+        if (!(chave instanceof Chave)){
+            const error = new Error("palavra chave inválida");
+            logError(error, 'Website.addChave');
+            throw error;
+        }
+        const jaExiste = this.#chaves.some(c => c.termo === chave.termo);
         if(!jaExiste){
-            this.#chaves.push(entradalista);
+            this.#chaves.push(chave);
         }
-        
     }
 
-    cadastrarSite(dados) {
-    const site = new Website();
-    try {
-        site.titulo = dados.titulo;
-    } catch (e) {
-        
-        const logMsg = `${new Date().toISOString()} - ${e.message}\n`;
-        fs.appendFileSync('log_excecoes.txt', logMsg);
-        
-        console.log("Erro registrado no arquivo log_excecoes.txt");
+    toObject() {
+        return {
+            titulo: this.titulo,
+            url: this.url,
+            descritivo: this.descritivo,
+            imagem: this.imagem,
+            chaves: this.chaves.map(c => c.toObject()),
+        };
     }
 }
 
-    
-}
+module.exports = Website;
