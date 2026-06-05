@@ -7,7 +7,7 @@ const deleteWebsite = require('./ModificaDB/delete/websiteDelete');
 const alterBusca = require('./ModificaDB/alter/buscaAlter');
 const alterChave = require('./ModificaDB/alter/chaveAlter');
 const alterWebsite = require('./ModificaDB/alter/websiteAlter');
-const { searchBuscas, searchChaves, searchWebsites, searchAll } = require('./Classes/Search');
+const { searchBuscas, searchChaves, searchWebsites, searchAll } = require('./Search');
 
 module.exports = {
   insertBusca,
