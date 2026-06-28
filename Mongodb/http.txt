@@ -1,1 +1,0 @@
-//* mongodb+srv://bielthekill:maslei10@cluster0.x0gambv.mongodb.net/?appName=Cluster0
