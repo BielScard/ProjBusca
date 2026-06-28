@@ -2,7 +2,21 @@ const express = require('express');
 const router = express.Router();
 const { getDb } = require('../db');
 
+function buildUserPayload(user) {
+  return {
+    id: user._id,
+    email: user.email,
+    name: user.name || null,
+    role: user.role || 'user',
+  };
+}
+
 async function authenticateRequest(req, res, next) {
+  if (req.session?.user) {
+    req.user = req.session.user;
+    return next();
+  }
+
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Basic ')) {
@@ -36,12 +50,7 @@ async function authenticateRequest(req, res, next) {
       });
     }
 
-    req.user = {
-      id: user._id,
-      email: user.email,
-      name: user.name || null,
-      role: user.role || 'user',
-    };
+    req.user = buildUserPayload(user);
     return next();
   } catch (error) {
     console.error('Erro ao validar autenticação:', error);
@@ -81,15 +90,22 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    return res.status(200).json({
-      message: 'Login realizado com sucesso.',
-      user: {
-        id: user._id,
-        name: user.name || null,
-        email: user.email,
-        role: user.role || 'user',
-      },
-      auth: 'Use Basic auth no header Authorization para recursos restritos',
+    req.session.user = buildUserPayload(user);
+    req.session.authenticated = true;
+
+    req.session.save((error) => {
+      if (error) {
+        console.error('Erro ao salvar a sessão:', error);
+        return res.status(500).json({
+          error: 'Erro interno ao criar a sessão.',
+        });
+      }
+
+      return res.status(200).json({
+        message: 'Login realizado com sucesso.',
+        user: req.session.user,
+        auth: 'A sessão foi criada para acessar os recursos restritos.',
+      });
     });
   } catch (error) {
     console.error('Erro ao validar login:', error);
@@ -97,6 +113,33 @@ router.post('/login', async (req, res) => {
       error: 'Erro interno ao processar o login.',
     });
   }
+});
+
+router.post('/logout', (req, res) => {
+  req.session.destroy((error) => {
+    if (error) {
+      console.error('Erro ao encerrar a sessão:', error);
+      return res.status(500).json({
+        error: 'Não foi possível encerrar a sessão.',
+      });
+    }
+
+    return res.status(200).json({
+      message: 'Logout realizado com sucesso.',
+    });
+  });
+});
+
+router.get('/me', (req, res) => {
+  if (!req.session?.user) {
+    return res.status(401).json({
+      error: 'Nenhuma sessão ativa.',
+    });
+  }
+
+  return res.status(200).json({
+    user: req.session.user,
+  });
 });
 
 module.exports = {
